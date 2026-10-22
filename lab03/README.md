@@ -112,9 +112,17 @@ grupo-XX/
 
 Los scripts deberán ejecutarse de forma reproducible en un entorno limpio. Documenten explícitamente si para repetirlos es necesario recrear una base de datos de laboratorio. Eviten comandos de eliminación destructiva sin explicación.
 
+### Entrega mediante GitHub
+
+- Cada grupo deberá presentar un **Pull Request hacia la rama `main`**, manteniéndolo **abierto** y con **todas las validaciones automáticas aprobadas** antes de la fecha límite.
+- **No deberán realizar el merge** del Pull Request.
+- La entrega se identificará mediante el **enlace al Pull Request** y el **SHA completo del commit final**.
+- Cualquier modificación posterior a la fecha límite **no será considerada** para la evaluación.
+- Esta información (enlace al Pull Request y SHA completo del commit final) debe agregarse en el espacio habilitado en el **TEC Digital**, en un **único archivo de texto** para cada grupo.
+
 ### Validación automática del Pull Request
 
-La entrega se realiza mediante un **Pull Request hacia `main`**. Un flujo de GitHub Actions valida automáticamente la estructura antes de aceptar la entrega. Tengan en cuenta:
+Un flujo de GitHub Actions valida automáticamente la estructura del Pull Request antes de aceptar la entrega. Tengan en cuenta:
 
 - **Un Pull Request debe contener cambios de un solo grupo.** No mezclen archivos de `lab03/<grupo>/` de distintos equipos en el mismo PR.
 - **Rutas obligatorias:** todo cambio debe vivir bajo `lab03/<grupo>/`. Como mínimo deben existir:

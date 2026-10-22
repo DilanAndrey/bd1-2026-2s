@@ -108,22 +108,42 @@ laboratorio-3/
 
 Los scripts deberán ejecutarse de forma reproducible en un entorno limpio. Documenten explícitamente si para repetirlos es necesario recrear una base de datos de laboratorio. Eviten comandos de eliminación destructiva sin explicación.
 
+### Validación automática del Pull Request
+
+La entrega se realiza mediante un **Pull Request hacia `main`**. Un flujo de GitHub Actions valida automáticamente la estructura antes de aceptar la entrega. Tengan en cuenta:
+
+- **Un Pull Request debe contener cambios de un solo grupo.** No mezclen archivos de `lab03/<grupo>/` de distintos equipos en el mismo PR.
+- **Rutas obligatorias:** todo cambio debe vivir bajo `lab03/<grupo>/`. Como mínimo deben existir:
+  - `lab03/<grupo>/README.md`
+  - `lab03/<grupo>/sql/01_esquema.sql`
+  - `lab03/<grupo>/sql/02_datos.sql`
+  - `lab03/<grupo>/sql/03_consultas.sql`
+  - `lab03/<grupo>/sql/04_rutinas.sql`
+  - `lab03/<grupo>/sql/05_pruebas.sql`
+- **Extensiones permitidas:** `.md`, `.sql`, `.pdf`, `.png`, `.jpg`, `.jpeg`. Cualquier otro tipo de archivo (por ejemplo `.docx`, `.xlsx`, `.zip`) es rechazado.
+- **Tamaño máximo por archivo:** 1 MiB para `.md`/`.sql`, 10 MiB para `.pdf`, 5 MiB para imágenes (`.png`/`.jpg`/`.jpeg`).
+- **No se aceptan archivos vacíos.**
+- Los archivos `.md` y `.sql` deben guardarse como texto UTF-8 válido, sin datos binarios.
+- Los `.pdf` y las imágenes deben tener una firma de archivo válida (no basta con cambiar la extensión).
+
+Si el Pull Request no cumple alguna de estas condiciones, la entrega será **rechazada automáticamente** y deberán corregirla antes de volver a solicitar revisión.
+
 ## 6. Rúbrica (100 puntos)
 
 | Criterio | Puntos |
 |---|---:|
-| A1. Trazabilidad entre modelo y esquema | 8 |
-| A2. Tablas, tipos, claves y restricciones | 16 |
-| A3. Reproducibilidad | 6 |
-| B1. Datos de prueba representativos | 8 |
-| B2. Consultas de negocio | 7 |
-| B3. Pruebas de integridad | 10 |
-| C1. Dos funciones justificadas | 10 |
-| C2. Procedimiento con validación | 12 |
-| C3. Técnica procedimental adicional | 8 |
-| D1. Documentación y decisiones | 7 |
+| A1. Trazabilidad entre modelo y esquema | 7 |
+| A2. Tablas, tipos, claves y restricciones | 13 |
+| A3. Reproducibilidad | 5 |
+| B1. Datos de prueba representativos | 7 |
+| B2. Consultas de negocio | 6 |
+| B3. Pruebas de integridad | 7 |
+| C1. Dos funciones justificadas | 8 |
+| C2. Procedimiento con validación | 10 |
+| C3. Técnica procedimental adicional | 7 |
+| D1. Documentación y decisiones | 6 |
 | D2. Evidencias | 4 |
-| D3. Defensa técnica | 4 |
+| D3. Defensa técnica | 20 |
 | **Total** | **100** |
 
 ## 7. Criterios de evaluación importantes

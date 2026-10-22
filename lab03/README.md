@@ -87,22 +87,24 @@ Cada integrante del equipo deberá entregar un video individual de **máximo 5 m
 
 **Evaluación:** La calificación será individual y considerará la claridad de la explicación, el dominio técnico, la ejecución de la prueba y la capacidad para justificar las decisiones tomadas. La presentación del video sustituye la defensa presencial del laboratorio.
 
-## 5. Entregables y estructura sugerida
+## 5. Entregables y estructura
 
 ```text
-laboratorio-3/
-├── README.md
-├── modelo/
+grupo-XX/
+├── README.md                         # obligatorio
+├── modelo/                           # sugerido
 │   └── fragmento-modelo-logico.pdf   # o imagen legible
-├── sql/
-│   ├── 01_esquema.sql
-│   ├── 02_datos.sql
-│   ├── 03_consultas.sql
-│   ├── 04_rutinas.sql
-│   └── 05_pruebas.sql
-└── evidencias/
+├── sql/                              # obligatorio
+│   ├── 01_esquema.sql                # obligatorio
+│   ├── 02_datos.sql                  # obligatorio
+│   ├── 03_consultas.sql              # obligatorio
+│   ├── 04_rutinas.sql                # obligatorio
+│   └── 05_pruebas.sql                # obligatorio
+└── evidencias/                       # sugerido
     └── resultados.md                 # o PDF con pruebas identificadas
 ```
+
+`README.md` y los cinco scripts dentro de `sql/` son **obligatorios**: deben existir con exactamente esos nombres y rutas, pues la validación automática del Pull Request (ver abajo) rechaza la entrega si falta alguno. Las carpetas `modelo/` y `evidencias/` son una organización **sugerida** para el fragmento del modelo lógico y la evidencia de ejecución; el CI no exige esos nombres, solo que cualquier archivo entregado use una extensión permitida.
 
 **Orden de ejecución:** `01_esquema.sql` → `02_datos.sql` → `04_rutinas.sql` → `03_consultas.sql` → `05_pruebas.sql`.
 

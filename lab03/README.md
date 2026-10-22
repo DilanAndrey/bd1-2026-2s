@@ -69,7 +69,7 @@ Elaboren `04_rutinas.sql`. Las rutinas deben corresponder a acciones o consultas
 
 ### Parte D — Documentación y defensa técnica (30 puntos)
 
-**D1. Informe (6 puntos).** Incluyan en `README.md`: descripción del proceso implementado, fragmento de modelo lógico, matriz de trazabilidad, instrucciones de ejecución, decisiones de diseño físico, justificación de las rutinas, limitaciones y enlace a evidencias.
+**D1. Informe (6 puntos).** Incluyan en `README.md`: descripción del proceso implementado, fragmento de modelo lógico, matriz de trazabilidad, instrucciones de ejecución, decisiones de diseño físico, justificación de las rutinas, limitaciones, enlace a evidencias y el **enlace a cada video** de la defensa individual (ver D3).
 
 **D2. Evidencia de ejecución (4 puntos).** Incluyan resultados verificables de consultas, pruebas de integridad y llamadas a las rutinas. Las evidencias deben estar asociadas con un ID de prueba o consulta, no presentarse como capturas sin explicación.
 
@@ -84,6 +84,8 @@ Cada integrante del equipo deberá entregar un video individual de **máximo 5 m
 - El estudiante deberá compartir su pantalla para mostrar el código SQL, la ejecución de las pruebas y sus resultados, manteniendo visible su cámara.
 - La explicación deberá realizarse con sus propias palabras, demostrando comprensión de lo implementado.
 - No se aceptarán videos que consistan únicamente en leer el código o el documento entregado.
+
+**Entrega del video:** el repositorio **no admite archivos de video** (la validación automática del Pull Request solo permite `.md`, `.sql`, `.pdf`, `.png`, `.jpg`, `.jpeg`). Cada integrante debe subir su video a una plataforma externa (por ejemplo, Google Drive, YouTube como no listado, o la plataforma indicada por el profesor) y colocar el **enlace de acceso** en el `README.md` del grupo, identificando claramente a qué integrante corresponde cada video.
 
 **Evaluación:** La calificación será individual y considerará la claridad de la explicación, el dominio técnico, la ejecución de la prueba y la capacidad para justificar las decisiones tomadas. La presentación del video sustituye la defensa presencial del laboratorio.
 

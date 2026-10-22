@@ -8,8 +8,8 @@ permissions:
   contents: read
 
 jobs:
-  validar-lab3:
-    name: validar-lab3
+  validar-lab03:
+    name: validar-lab03
     runs-on: ubuntu-latest
     steps:
       - name: Descargar repositorio
@@ -40,8 +40,8 @@ jobs:
 
           errors = []
           for path in paths:
-              if not path.startswith('lab3/'):
-                  errors.append(f'{path}: solo se admiten entregas dentro de lab3/')
+              if not path.startswith('lab03/'):
+                  errors.append(f'{path}: solo se admiten entregas dentro de lab03/')
               elif not path.lower().endswith(('.md', '.sql', '.pdf')):
                   errors.append(f'{path}: extensión no permitida; use .md, .sql o .pdf')
               else:

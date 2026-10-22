@@ -1,0 +1,137 @@
+name: Validar SQL Laboratorio 3
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validar-sql:
+    name: validar-sql
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: ci_temporal
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Instalar cliente PostgreSQL
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client
+
+      - name: Ejecutar SQL en base temporal
+        shell: bash
+        env:
+          PGHOST: localhost
+          PGPORT: '5432'
+          PGADMIN_PASSWORD: ci_temporal
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os, pathlib, re, subprocess, sys
+
+          root = pathlib.Path('lab03')
+          grupos = sorted(p for p in root.iterdir() if p.is_dir()) if root.exists() else []
+          if not grupos:
+              sys.exit('No se encontraron carpetas de grupos en lab03/')
+
+          # En PR, ejecutar únicamente el grupo afectado; en ejecución manual, todos.
+          event = os.environ.get('GITHUB_EVENT_NAME')
+          if event == 'pull_request':
+              import json
+              with open(os.environ['GITHUB_EVENT_PATH'], encoding='utf-8') as f:
+                  payload = json.load(f)
+              base = payload['pull_request']['base']['sha']
+              head = payload['pull_request']['head']['sha']
+              changed = subprocess.check_output(['git','diff','--name-only',f'{base}...{head}'],text=True).splitlines()
+              names = {s.split('/')[1] for s in changed if s.startswith('lab03/') and len(s.split('/')) >= 3}
+              if not names:
+                  print('Sin cambios de grupos en lab03/: validación SQL no aplica.')
+                  sys.exit(0)
+              if len(names) != 1:
+                  sys.exit('Este PR debe modificar exactamente un grupo de lab03/.')
+              grupos = [root / next(iter(names))]
+
+          def run_pg(args, *, password, input_text=None, check=True):
+              env = dict(os.environ, PGPASSWORD=password)
+              return subprocess.run(['psql','-X','-w','-v','ON_ERROR_STOP=1',*args],
+                                    input=input_text, text=True, env=env,
+                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                    timeout=90, check=check)
+
+          scripts = ['01_esquema.sql','02_datos.sql','04_rutinas.sql','03_consultas.sql']
+          for grupo in grupos:
+              print(f'\n===== Grupo: {grupo.name} =====', flush=True)
+              sql_dir = grupo / 'sql'
+              missing = [s for s in scripts + ['05_pruebas.sql'] if not (sql_dir / s).is_file()]
+              if missing:
+                  sys.exit(f'{grupo.name}: faltan scripts: {", ".join(missing)}')
+
+              # Rol sin privilegios de superusuario. No usar datos ni secretos reales.
+              admin_args = ['-U','postgres','-d','postgres','-h','localhost']
+              suffix = re.sub('[^a-z0-9_]','_',grupo.name.lower())[:35]
+              db = 'ci_' + suffix
+              role = 'ci_runner'
+              setup = f'''DROP DATABASE IF EXISTS "{db}" WITH (FORCE);\n'''
+              # DDL de usuarios separado de CREATE DATABASE por requisitos de PostgreSQL.
+              run_pg(admin_args, password=os.environ['PGADMIN_PASSWORD'],
+                     input_text="DO $$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='ci_runner') THEN CREATE ROLE ci_runner LOGIN PASSWORD 'solo_ci' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION; END IF; END $$;")
+              run_pg(admin_args, password=os.environ['PGADMIN_PASSWORD'], input_text=setup)
+              run_pg(admin_args, password=os.environ['PGADMIN_PASSWORD'],
+                     input_text=f'CREATE DATABASE "{db}" OWNER {role};')
+              connect = ['-h','localhost','-U',role,'-d',db]
+              for script in scripts:
+                  path = sql_dir / script
+                  content = path.read_text(encoding='utf-8-sig')
+                  # El material entregable es SQL, no comandos locales de psql.
+                  if re.search(r'(?m)^\s*\\', content):
+                      sys.exit(f'{path}: comandos especiales de psql (\\...) no permitidos.')
+                  print(f'\n▶ {path}', flush=True)
+                  env = dict(os.environ, PGPASSWORD='solo_ci', PGOPTIONS='-c statement_timeout=20000 -c lock_timeout=5000')
+                  try:
+                      outcome = subprocess.run(['psql','-X','-w','-v','ON_ERROR_STOP=1',*connect,'-f',str(path)],
+                                               env=env, text=True, stdout=subprocess.PIPE,
+                                               stderr=subprocess.STDOUT,timeout=75)
+                  except subprocess.TimeoutExpired:
+                      sys.exit(f'ERROR: {path} excedió el tiempo permitido.')
+                  print(outcome.stdout[-10000:])
+                  if outcome.returncode:
+                      sys.exit(f'ERROR: {path} falló al ejecutarse en PostgreSQL vacío.')
+
+              # Pruebas pueden contener rechazos deliberados; no se califica aquí su éxito.
+              pruebas = sql_dir / '05_pruebas.sql'
+              content = pruebas.read_text(encoding='utf-8-sig')
+              if re.search(r'(?m)^\s*\\', content):
+                  sys.exit(f'{pruebas}: comandos especiales de psql (\\...) no permitidos.')
+              print(f'\n▶ {pruebas} (diagnóstico, no bloqueante)', flush=True)
+              env = dict(os.environ, PGPASSWORD='solo_ci', PGOPTIONS='-c statement_timeout=20000 -c lock_timeout=5000')
+              try:
+                  outcome = subprocess.run(['psql','-X','-w','-v','ON_ERROR_STOP=0',*connect,'-f',str(pruebas)],
+                                           env=env,text=True,stdout=subprocess.PIPE,
+                                           stderr=subprocess.STDOUT,timeout=75)
+                  print(outcome.stdout[-10000:])
+                  if 'ERROR:' in outcome.stdout or outcome.returncode:
+                      print('AVISO: 05_pruebas.sql produjo errores; pueden ser rechazos previstos. Revisar manualmente.')
+              except subprocess.TimeoutExpired:
+                  print('AVISO: 05_pruebas.sql excedió el tiempo permitido. Revisar manualmente.')
+              print(f'\nAPROBADO: {grupo.name}: esquema, datos, rutinas y consultas ejecutados.',flush=True)
+          PY

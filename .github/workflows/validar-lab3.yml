@@ -1,0 +1,56 @@
+name: Validar Laboratorio 3
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validar-lab3:
+    name: validar-lab3
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Revisar los archivos modificados
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import subprocess
+          import sys
+
+          base = os.environ['BASE_SHA']
+          head = os.environ['HEAD_SHA']
+          result = subprocess.run(
+              ['git', 'diff', '--name-only', '-z', '--diff-filter=ACMRT', f'{base}...{head}'],
+              capture_output=True, check=True
+          )
+          paths = [os.fsdecode(p) for p in result.stdout.split(b'\0') if p]
+          if not paths:
+              print('ERROR: el Pull Request no agrega ni modifica archivos para entregar.')
+              sys.exit(1)
+
+          errors = []
+          for path in paths:
+              if not path.startswith('lab3/'):
+                  errors.append(f'{path}: solo se admiten entregas dentro de lab3/')
+              elif not path.lower().endswith(('.md', '.sql', '.pdf')):
+                  errors.append(f'{path}: extensión no permitida; use .md, .sql o .pdf')
+              else:
+                  print(f'OK: {path}')
+
+          if errors:
+              print('\nENTREGA RECHAZADA:')
+              for error in errors:
+                  print(' - ' + error)
+              sys.exit(1)
+          print('\nValidación de archivos aprobada.')
+          PY

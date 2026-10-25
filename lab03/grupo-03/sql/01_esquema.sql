@@ -1,4 +1,3 @@
-
 -- Laboratorio 03 - Grupo 03
 -- Subsistema curricular de Universidad Horizonte.
 

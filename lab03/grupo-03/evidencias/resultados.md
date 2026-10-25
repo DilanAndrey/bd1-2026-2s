@@ -85,13 +85,6 @@ Se crearon una base de datos independiente y un usuario sin privilegios de super
 
 **Conclusión:** se verificó la ejecución reproducible de los tres scripts disponibles. La comprobación integral queda pendiente de incorporar `04_rutinas.sql` y `05_pruebas.sql`.
 
-## Pruebas de integridad y rutinas
-
-Pendientes de incorporar y verificar tras implementar `04_rutinas.sql` y `05_pruebas.sql`.
-
-
----
-
 ## Verificación local de Felipe — Rutinas y pruebas P01–P09
 
 ### Alcance y procedencia de la evidencia

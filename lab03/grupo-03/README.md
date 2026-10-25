@@ -119,11 +119,102 @@ Las consultas utilizan relaciones entre tablas y agregación mediante `COUNT` y 
 
 Los resultados observados están registrados en [evidencias/resultados.md](evidencias/resultados.md).
 
-## 7. Programación almacenada
+## ## 7. Programación almacenada
 
-**Pendiente de implementación y validación.**
+El archivo `04_rutinas.sql` implementa programación almacenada mediante PL/pgSQL, utilizando las tablas del subsistema de gestión curricular de Universidad Horizonte.
 
-Esta sección documentará las dos funciones, el procedimiento almacenado y la técnica procedimental adicional de `04_rutinas.sql`, incluyendo su propósito, parámetros, valores de retorno, reglas y ejemplos de ejecución.
+### C1 — Funciones almacenadas
+
+**Función 1: `fn_creditos_obligatorios_plan`**
+
+- **Parámetro:** `p_id_version INTEGER`.
+- **Retorno:** `INTEGER`.
+- **Propósito:** calcular la suma de créditos de los cursos obligatorios de una versión del plan de estudios.
+- **Funcionamiento:** consulta las tablas `participacion_plan` y `curso`, aplica el filtro de participación obligatoria y utiliza `SUM` para calcular el total. Emplea `COALESCE` para devolver cero cuando no hay cursos obligatorios.
+
+Ejemplo:
+
+`SELECT fn_creditos_obligatorios_plan(102);`
+
+**Resultado esperado y observado:** 22 créditos.
+
+**Función 2: `fn_tipo_requisitos_curso`**
+
+- **Parámetros:** `p_codigo_curso TEXT`, `p_id_version INTEGER`.
+- **Retorno:** `TEXT`.
+- **Propósito:** identificar los tipos de requisitos asociados a un curso en una versión específica.
+- **Funcionamiento:** valida la pertenencia del curso al plan, cuenta los requisitos previos y correquisitos, y utiliza estructuras `IF`, `ELSIF` y `ELSE` para clasificar el resultado.
+
+Puede devolver: `Requisitos previos y correquisitos`, `Solo requisitos previos`, `Solo correquisitos`, `Sin requisitos` o `El curso no pertenece al plan`.
+
+Ejemplo:
+
+`SELECT fn_tipo_requisitos_curso('UH-BDAT1', 102);`
+
+**Resultado esperado y observado:** `Requisitos previos y correquisitos`.
+
+### C2 — Procedimiento almacenado
+
+**Procedimiento: `sp_agregar_curso_plan`**
+
+Permite incorporar un curso existente a una versión del plan de estudios.
+
+**Parámetros:**
+
+- `p_codigo_curso TEXT`
+- `p_id_version INTEGER`
+- `p_tipo_participacion TEXT`
+- `p_nivel TEXT`
+
+Antes de insertar, el procedimiento verifica que el curso exista, que la versión exista, que el tipo de participación sea `Obligatorio` u `Optativo` y que el curso no esté registrado previamente en esa versión.
+
+Cuando una condición no se cumple, utiliza `RAISE EXCEPTION` para rechazar la operación y mostrar un mensaje descriptivo.
+
+**Ejemplo de operación válida:**
+
+`CALL sp_agregar_curso_plan('UH-RED1', 101, 'Optativo', '4');`
+
+La inserción fue aceptada durante la prueba P03 y posteriormente revertida para conservar los datos originales.
+
+**Ejemplo de operación inválida:**
+
+`CALL sp_agregar_curso_plan('UH-PROG1', 102, 'Obligatorio', '1');`
+
+La operación fue rechazada porque el curso ya pertenecía a la versión 102.
+
+### C3 — Técnica procedimental adicional: cursor explícito
+
+**Función: `fn_detalle_requisitos_cursor`**
+
+- **Parámetros:** `p_codigo_curso TEXT`, `p_id_version INTEGER`.
+- **Retorno:** `TEXT`.
+- **Propósito:** construir un resumen descriptivo de los requisitos asociados a un curso.
+
+La implementación utiliza un cursor explícito para recorrer individualmente los registros obtenidos de `requisito_curso`.
+
+Se emplean las instrucciones `OPEN`, `FETCH`, `EXIT WHEN NOT FOUND` y `CLOSE`, junto con un ciclo `LOOP`.
+
+Ejemplo:
+
+`SELECT fn_detalle_requisitos_cursor('UH-BDAT1', 102);`
+
+El resultado incluye un requisito previo y dos correquisitos.
+
+También se comprobó el caso:
+
+`SELECT fn_detalle_requisitos_cursor('UH-RED1', 102);`
+
+**Resultado observado:** `Sin requisitos`.
+
+**Comparación con una alternativa basada en conjuntos**
+
+La misma concatenación puede realizarse mediante `STRING_AGG`, una función de agregación de PostgreSQL que combina los valores de múltiples filas.
+
+El cursor permite demostrar el procesamiento secuencial mediante PL/pgSQL. Sin embargo, para generar un resumen textual sin lógica adicional por registro, `STRING_AGG` resulta más conciso y evita recorrer explícitamente los registros desde el código procedimental.
+
+Se compararon ambas alternativas utilizando los mismos filtros y el mismo orden. Los resultados observados coincidieron.
+
+La consulta equivalente y las evidencias se documentan en [evidencias/resultados.md](evidencias/resultados.md).
 
 ## 8. Instrucciones de ejecución
 
@@ -179,11 +270,25 @@ La ejecución completa requiere que los cinco scripts estén implementados.
 
 Los scripts de creación y carga están diseñados para ejecutarse una vez sobre una base vacía. Para repetir íntegramente el proceso debe utilizarse una nueva base de datos de laboratorio; no deben ejecutarse sobre una base que ya contenga las mismas tablas y registros.
 
-### Reproducibilidad verificada
+### ### Reproducibilidad verificada
 
-Se ejecutaron `01_esquema.sql`, `02_datos.sql` y `03_consultas.sql` sobre PostgreSQL 17.11 en una base independiente, utilizando el usuario `ci_runner`, sin privilegios de superusuario.
+Se realizaron dos verificaciones complementarias.
 
-Los tres scripts se ejecutaron correctamente. La validación integral queda pendiente de incorporar las rutinas y las pruebas de integridad.
+**Verificación inicial:** se ejecutaron los scripts `01_esquema.sql`, `02_datos.sql` y `03_consultas.sql` sobre PostgreSQL 17.11, utilizando una base independiente y el usuario `ci_runner`, sin privilegios de superusuario.
+
+**Verificación integral local:** posteriormente, Felipe ejecutó los cinco scripts sobre una base de datos nueva llamada `lab03_revision`, utilizando PostgreSQL 17 en Docker.
+
+El orden de ejecución fue:
+
+1. `01_esquema.sql`
+2. `02_datos.sql`
+3. `04_rutinas.sql`
+4. `03_consultas.sql`
+5. `05_pruebas.sql`
+
+Se verificó la creación de seis tablas, la carga de 41 registros, la creación de tres funciones y un procedimiento almacenado, la ejecución de las tres consultas de negocio y el resultado satisfactorio de las nueve pruebas.
+
+**Conclusión:** se confirmó que los cinco archivos funcionan conjuntamente desde una base de datos vacía en el entorno local. Esta verificación no sustituye la ejecución posterior de la integración continua de GitHub.
 
 ## 9. Limitaciones
 
@@ -193,11 +298,31 @@ Las reglas RN-06 y RN-18 requieren información de solicitudes de matrícula, re
 
 Asimismo, las representaciones físicas provisionales de `vigencia` y `nivel_o_periodo_recomendado` no permiten validar todas las propiedades temporales o académicas que podrían definirse posteriormente.
 
-## 10. Evidencias
+## ## 10. Evidencias
 
 Los resultados de ejecución se documentan en [evidencias/resultados.md](evidencias/resultados.md).
 
-Las evidencias de las rutinas y las seis pruebas de integridad se incorporarán después de su implementación.
+El documento incluye las evidencias de creación del esquema, carga de datos, consultas de negocio, programación almacenada y pruebas de integridad.
+
+Se implementaron nueve pruebas:
+
+| ID | Descripción | Resultado |
+|---|---|---|
+| P01 | Cálculo de créditos obligatorios | Exitosa |
+| P02 | Clasificación de requisitos | Exitosa |
+| P03 | Inserción válida mediante procedimiento | Exitosa |
+| P04 | Rechazo de participación duplicada | Exitosa |
+| P05 | Rechazo de clave foránea inexistente | Exitosa |
+| P06 | Rechazo de participación inválida | Exitosa |
+| P07 | Inserción válida de requisito | Exitosa |
+| P08 | Actualización válida de participación | Exitosa |
+| P09 | Rechazo de duplicado mediante procedimiento | Exitosa |
+
+Las pruebas P03, P07 y P08 utilizan transacciones y puntos de guardado para revertir los cambios realizados durante su ejecución.
+
+Las pruebas negativas capturan las excepciones esperadas y comprueban que el rechazo corresponda a la condición evaluada.
+
+Las nueve pruebas fueron ejecutadas satisfactoriamente en el entorno local. Las precondiciones, sentencias, resultados esperados, resultados observados y conclusiones individuales se encuentran documentados en el archivo de evidencias.
 
 ## 11. Defensa individual
 

@@ -1,3 +1,4 @@
+
 # Laboratorio 03 — Universidad Horizonte
 
 - **Curso:** IC-4301 — Bases de Datos I
@@ -13,6 +14,8 @@ El subsistema permite registrar carreras, escuelas, cursos, versiones de planes 
 Se implementan seis tablas relacionadas. Quedan fuera del alcance operativo la matrícula de estudiantes, los resultados académicos, los reconocimientos de cursos y la comprobación individual del cumplimiento de requisitos.
 
 ## 2. Fragmento del modelo lógico
+
+[Fragmento del modelo lógico](modelo/fragmento-modelo-logico.pdf)
 
 El fragmento seleccionado está compuesto por las siguientes relaciones:
 
@@ -119,7 +122,7 @@ Las consultas utilizan relaciones entre tablas y agregación mediante `COUNT` y 
 
 Los resultados observados están registrados en [evidencias/resultados.md](evidencias/resultados.md).
 
-## ## 7. Programación almacenada
+## 7. Programación almacenada
 
 El archivo `04_rutinas.sql` implementa programación almacenada mediante PL/pgSQL, utilizando las tablas del subsistema de gestión curricular de Universidad Horizonte.
 
@@ -270,7 +273,7 @@ La ejecución completa requiere que los cinco scripts estén implementados.
 
 Los scripts de creación y carga están diseñados para ejecutarse una vez sobre una base vacía. Para repetir íntegramente el proceso debe utilizarse una nueva base de datos de laboratorio; no deben ejecutarse sobre una base que ya contenga las mismas tablas y registros.
 
-### ### Reproducibilidad verificada
+### Reproducibilidad verificada
 
 Se realizaron dos verificaciones complementarias.
 
@@ -298,7 +301,7 @@ Las reglas RN-06 y RN-18 requieren información de solicitudes de matrícula, re
 
 Asimismo, las representaciones físicas provisionales de `vigencia` y `nivel_o_periodo_recomendado` no permiten validar todas las propiedades temporales o académicas que podrían definirse posteriormente.
 
-## ## 10. Evidencias
+## 10. Evidencias
 
 Los resultados de ejecución se documentan en [evidencias/resultados.md](evidencias/resultados.md).
 

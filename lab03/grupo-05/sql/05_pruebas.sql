@@ -1,4 +1,4 @@
--- B3. Pruebas de integridad del subsistema de salud.
+-- Pruebas de integridad del subsistema de salud.
 -- Precondición general: 01_esquema.sql confirmado y 02_datos.sql cargado
 -- una sola vez en una base de prueba. Puede ejecutarse después de 04_rutinas.sql.
 -- Cada Pxx indica precondición, sentencia y resultado esperado. La tabla final

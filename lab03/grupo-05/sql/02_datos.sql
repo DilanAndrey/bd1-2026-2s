@@ -1,4 +1,4 @@
--- B1. Datos ficticios del subsistema de salud de Huellas Seguras.
+-- Datos ficticios del subsistema de salud de Huellas Seguras.
 -- Precondición: 01_esquema.sql ejecutado y confirmado en una base vacía.
 -- Este script se carga una sola vez; para repetirlo, recrear la base de prueba.
 

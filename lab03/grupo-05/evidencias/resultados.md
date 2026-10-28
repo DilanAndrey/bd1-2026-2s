@@ -1,4 +1,4 @@
-# Evidencias de la Parte B — Grupo 05
+# Evidencias de consultas y pruebas — Grupo 05
 
 Ejecución local del 27-10-2026 sobre una base en memoria, con `01_esquema.sql`, `02_datos.sql`, `03_consultas.sql` y `05_pruebas.sql`. Motor: PGlite 0.5.12, que informó `PostgreSQL 18.6 ... wasm32-unknown-emscripten`. La versión de entrega es PostgreSQL 16; la corrida en esa versión sigue pendiente. `04_rutinas.sql` estaba vacío durante esta verificación y no se atribuyen resultados a rutinas. El esquema incluye ahora `COMMIT;`, necesario para ejecutarlo en una conexión `psql` distinta de los demás archivos.
 
@@ -53,4 +53,4 @@ Las sentencias completas, los valores y el control de errores están en [05_prue
 | P07 | Revisión 5 y diagnóstico 2 existen; pareja (5,2) ausente. | Insertar `(5,2,'INVALIDO')` en `diagnostico_revision`. | RECHAZADO | `check_violation` | Cumple RN-11: estado permitido. |
 | P08 | Indicación 4 existe; aplicación 9002 ausente. | Insertar aplicación realizada sin responsable. | RECHAZADO | `check_violation` | Cumple RN-13: responsable requerido. |
 
-La captura de esta salida en PostgreSQL 16 y las evidencias de las rutinas quedan pendientes de la integración final del equipo.
+Queda pendiente adjuntar la salida en PostgreSQL 16 y las evidencias de las rutinas cuando estén disponibles.

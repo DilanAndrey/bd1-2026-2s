@@ -1,4 +1,4 @@
--- B2. Consultas de negocio. Ejecutar después de 02_datos.sql.
+-- Consultas de negocio. Ejecutar después de 02_datos.sql.
 -- Las fechas de referencia son fijas para que los resultados sean reproducibles.
 
 -- Q01. ¿Cuál es el historial de evaluaciones y diagnósticos de Luna?

@@ -330,4 +330,4 @@ Las nueve pruebas fueron ejecutadas satisfactoriamente en el entorno local. Las 
 ## 11. Defensa individual
 
 - **Santiago Víquez Zamora:** [Ver defensa individual](https://drive.google.com/file/d/1ZXX2p5Z0LmnglYslldHL0ezKTbHWrGOK/view?usp=sharing).
-- **Felipe Salazar González:** pendiente.
+- **Felipe Salazar González:** (https://youtu.be/7n18GuYsApE)

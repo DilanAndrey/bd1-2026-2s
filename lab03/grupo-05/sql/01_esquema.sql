@@ -76,3 +76,5 @@ CREATE TABLE aplicacion_indicacion (
 CREATE INDEX idx_evaluacion_animal ON evaluacion_salud(animal_codigo);
 CREATE INDEX idx_indicacion_evaluacion ON indicacion(evaluacion_id);
 CREATE INDEX idx_aplicacion_indicacion ON aplicacion_indicacion(indicacion_id);
+
+COMMIT;

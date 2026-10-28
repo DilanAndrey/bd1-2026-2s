@@ -27,7 +27,7 @@ Las consultas de [03_consultas.sql](sql/03_consultas.sql) responden estas pregun
 
 [05_pruebas.sql](sql/05_pruebas.sql) contiene ocho pruebas identificadas: tres inserciones válidas y cinco rechazos por unicidad, clave foránea, rango, estado y obligatoriedad condicional. Cada prueba declara su precondición, sentencia y resultado esperado. El script captura los errores esperados, muestra el resultado observado con conclusión y termina con `ROLLBACK` para no conservar los registros de prueba.
 
-La [evidencia de la Parte B](evidencias/resultados.md) incluye los resultados identificados de Q01–Q03 y P01–P08. Para ejecutar sobre PostgreSQL 16, usar una base vacía y el orden `01_esquema.sql` → `02_datos.sql` → `04_rutinas.sql` → `03_consultas.sql` → `05_pruebas.sql`. Hasta que el integrante 1 cierre la transacción de `01_esquema.sql`, ejecutar `COMMIT;` en **la misma conexión** inmediatamente después de ese archivo. Para repetir la carga desde cero, recrear la base de laboratorio.
+La [evidencia de la Parte B](evidencias/resultados.md) incluye los resultados identificados de Q01–Q03 y P01–P08. Para ejecutar sobre PostgreSQL 16, usar una base vacía y el orden `01_esquema.sql` → `02_datos.sql` → `04_rutinas.sql` → `03_consultas.sql` → `05_pruebas.sql`. Cada archivo se puede ejecutar en una conexión `psql` independiente: `01_esquema.sql` confirma su propia transacción. Para repetir la carga desde cero, recrear la base de laboratorio.
 
 ### Límites de estas pruebas
 

@@ -1,6 +1,8 @@
 # Evidencias de la Parte B — Grupo 05
 
-Ejecución local del 27-10-2026 sobre una base en memoria, con `01_esquema.sql` seguido de `COMMIT;`, `02_datos.sql`, `03_consultas.sql` y `05_pruebas.sql`. Motor: PGlite 0.5.12, que informó `PostgreSQL 18.6 ... wasm32-unknown-emscripten`. La versión de entrega es PostgreSQL 16; la corrida en esa versión sigue pendiente. `04_rutinas.sql` estaba vacío durante esta verificación y no se atribuyen resultados a rutinas.
+Ejecución local del 27-10-2026 sobre una base en memoria, con `01_esquema.sql`, `02_datos.sql`, `03_consultas.sql` y `05_pruebas.sql`. Motor: PGlite 0.5.12, que informó `PostgreSQL 18.6 ... wasm32-unknown-emscripten`. La versión de entrega es PostgreSQL 16; la corrida en esa versión sigue pendiente. `04_rutinas.sql` estaba vacío durante esta verificación y no se atribuyen resultados a rutinas. El esquema incluye ahora `COMMIT;`, necesario para ejecutarlo en una conexión `psql` distinta de los demás archivos.
+
+Tras añadir `COMMIT;`, se repitió la secuencia con una base persistente y una conexión nueva por archivo, como hace el workflow: `01_esquema.sql` → `02_datos.sql` → `04_rutinas.sql` → `03_consultas.sql` → `05_pruebas.sql`. Antes de `02_datos.sql`, `to_regclass('public.persona')` devolvió `persona`. Los cinco archivos se ejecutaron; Q01–Q03 devolvieron 3, 3 y 5 filas y P01–P08 registraron los ocho resultados esperados. Esta comprobación también usó PGlite; falta repetirla en el PostgreSQL 16 de CI.
 
 ## Consultas
 

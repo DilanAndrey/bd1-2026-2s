@@ -80,3 +80,228 @@ De esta manera, se mantiene la trazabilidad entre el diseño lógico original y 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## B1. Datos representativos (7 puntos)
+
+### Descripción de la carga de datos
+
+Para comprobar el funcionamiento del subsistema de Atención Médica Efectiva, Diagnóstico Clínico y Prescripción Terapéutica de la Clínica Los Robles, se elaboró el archivo `02_datos.sql`, que contiene un conjunto de 24 registros ficticios distribuidos entre las seis tablas seleccionadas del modelo lógico del Proyecto 1.
+
+Los datos fueron diseñados para representar situaciones habituales del proceso de atención médica, respetando los identificadores, atributos, relaciones y restricciones definidos en el esquema físico `01_esquema.sql`.
+
+La carga de datos permite representar consultas médicas, diagnósticos, observaciones clínicas versionadas, tratamientos prescritos y asociaciones entre las diferentes entidades, proporcionando una base para desarrollar las consultas de negocio y las pruebas de integridad de los siguientes apartados del laboratorio.
+
+### Distribución de los datos
+
+| Tabla | Cantidad de registros | Propósito |
+|---|---:|---|
+| `diagnostico` | 3 | Registrar un catálogo de diagnósticos médicos estandarizados. |
+| `consulta` | 3 | Representar consultas programadas, urgencias y consultas de control. |
+| `observacion_clinica` | 5 | Demostrar el registro de observaciones y la conservación de versiones anteriores. |
+| `consulta_diagnostico_nm` | 4 | Asociar diagnósticos con consultas y establecer su categoría y condición clínica. |
+| `tratamiento` | 4 | Registrar indicaciones terapéuticas, fechas previstas, estados y sustituciones. |
+| `tratamiento_diagnostico_nm` | 5 | Representar la relación muchos a muchos entre tratamientos y diagnósticos. |
+| **Total** | **24** | **Conjunto de datos representativo del subproceso clínico.** |
+
+### Escenarios de negocio representados
+
+**1. Consultas médicas programadas y atención de urgencia (RN-16 y RN-17).**
+
+Se prepararon tres consultas que representan diferentes situaciones de atención: una consulta programada por síntomas respiratorios, una atención de urgencia sin cita previa y una consulta posterior de control.
+
+La consulta de urgencia utiliza un valor `NULL` en el campo `id_cita`, demostrando que una atención médica puede realizarse sin una cita programada. Las tres consultas conservan identificadores de paciente y médico responsable, conforme a las reglas del modelo.
+
+**2. Registro y corrección de observaciones clínicas (RN-19 y S-13).**
+
+Se incluyeron cinco registros de observaciones clínicas, entre los cuales se encuentran dos versiones de una misma observación perteneciente a la consulta 5001.
+
+La primera versión permanece almacenada con `es_vigente = FALSE`, mientras que la versión corregida se identifica con `es_vigente = TRUE`. Esto permite representar la conservación del historial clínico sin eliminar la anotación original.
+
+**3. Clasificación de diagnósticos médicos (RN-20).**
+
+Se registraron tres diagnósticos del catálogo y cuatro asociaciones entre consultas y diagnósticos.
+
+Estas asociaciones incluyen diagnósticos principales y secundarios, así como condiciones confirmadas y presuntivas. Además, una misma consulta presenta varios diagnósticos y un diagnóstico aparece en distintas consultas, demostrando la relación muchos a muchos establecida en el modelo lógico.
+
+**4. Prescripción y sustitución de tratamientos (RN-21, RN-25 y RN-26).**
+
+Se prepararon cuatro tratamientos con diferentes tipos, estados, instrucciones y fechas previstas.
+
+Entre ellos, el tratamiento 7002 sustituye al tratamiento 7001 mediante el atributo `id_tratamiento_sustituido`. Ambos registros se conservan para representar la trazabilidad de las indicaciones terapéuticas.
+
+También se incluyen tratamientos con fechas de finalización definidas y otros sin fecha de finalización, así como atributos opcionales de dosis, frecuencia y cantidad de sesiones.
+
+**5. Asociación entre tratamientos y diagnósticos (RN-21).**
+
+Se incorporaron cinco registros en `tratamiento_diagnostico_nm`, permitiendo relacionar un tratamiento con varios diagnósticos y un diagnóstico con distintos tratamientos.
+
+Por ejemplo, el tratamiento 7001 se relaciona con los diagnósticos J06.9 y R50.9, mientras que J06.9 aparece asociado con los tratamientos 7001, 7002 y 7003.
+
+Esto permite representar la cardinalidad muchos a muchos definida en el Proyecto 1.
+
+### Justificación de la suficiencia de los datos
+
+El conjunto de 24 registros se considera suficiente para los objetivos del laboratorio porque incorpora diferentes escenarios clínicos y permite observar el comportamiento de las relaciones entre las seis tablas, sin necesidad de generar grandes cantidades de información repetitiva.
+
+Los registros permiten comprobar las relaciones uno a muchos entre consultas, observaciones y tratamientos, así como las relaciones muchos a muchos entre consultas, diagnósticos y tratamientos.
+
+Asimismo, se incluyen valores opcionales, diferentes estados clínicos, observaciones con múltiples versiones y tratamientos vinculados mediante una relación recursiva.
+
+Los registros se prepararon respetando las claves primarias y los valores permitidos por las restricciones declaradas en el esquema. Los identificadores externos de pacientes, médicos y citas se mantienen conforme al alcance reducido documentado para el laboratorio; su existencia no queda verificada mediante claves foráneas en el esquema proporcionado.
+
+### Conclusión
+
+La carga de datos propuesta para `02_datos.sql` proporciona un conjunto coherente y representativo del proceso clínico seleccionado de la Clínica Los Robles.
+
+Los datos permiten ejemplificar las reglas de negocio RN-16, RN-17, RN-19, RN-20, RN-21, RN-25 y RN-26, y servirán como base para ejecutar las consultas de negocio del apartado B2 y las pruebas de integridad del apartado B3.
+
+Toda la información utilizada es ficticia y tiene exclusivamente fines académicos, sin incluir datos personales reales de pacientes o profesionales médicos.
+
+**Estado de validación:** los 24 registros corresponden a la carga preparada. Su inserción exitosa y los resultados observados deberán confirmarse mediante la ejecución de `02_datos.sql` en PostgreSQL.
+
+## B2. Consultas de negocio (6 puntos)
+
+### Descripción
+
+Se elaboró el archivo `03_consultas.sql`, que contiene cuatro consultas SQL orientadas a responder preguntas relevantes para el proceso de Atención Médica Efectiva, Diagnóstico Clínico y Prescripción Terapéutica de la Clínica Los Robles.
+
+Las consultas utilizan los datos ficticios preparados en `02_datos.sql` y permiten comprobar las relaciones entre consultas médicas, diagnósticos, tratamientos y observaciones clínicas.
+
+### Q01. Diagnósticos registrados por consulta
+
+**Pregunta de negocio:** ¿Qué diagnósticos se registraron en cada consulta médica?
+
+**Regla relacionada:** RN-20.
+
+Se utilizan operaciones `INNER JOIN` entre las tablas `consulta`, `consulta_diagnostico_nm` y `diagnostico` para obtener los diagnósticos asociados con cada atención, incluyendo su categoría y condición clínica.
+
+**Resultado esperado:** cuatro asociaciones de diagnóstico correspondientes a las tres consultas registradas.
+
+**Utilidad:** facilita revisar los diagnósticos establecidos durante cada consulta, diferenciando los principales de los secundarios y los confirmados de los presuntivos.
+
+### Q02. Cantidad de diagnósticos por consulta
+
+**Pregunta de negocio:** ¿Cuántos diagnósticos principales y secundarios tiene cada consulta médica?
+
+**Regla relacionada:** RN-20.
+
+Se utilizan las funciones de agregación `COUNT` y `SUM`, junto con `GROUP BY`, para contabilizar los diagnósticos asociados con cada consulta. Se emplea `LEFT JOIN` para incluir consultas que no tengan diagnósticos registrados.
+
+**Resultado esperado:** la consulta 5001 tiene dos diagnósticos, mientras que las consultas 5002 y 5003 tienen uno cada una.
+
+**Utilidad:** permite obtener un resumen de la cantidad y clasificación de los diagnósticos registrados en las atenciones médicas.
+
+### Q03. Historial de sustitución de tratamientos
+
+**Pregunta de negocio:** ¿Qué tratamientos han sustituido a otros y cuál es el estado registrado de ambos?
+
+**Regla relacionada:** RN-26.
+
+Se utiliza una operación `SELF JOIN` sobre la tabla `tratamiento`, aprovechando la clave foránea recursiva `id_tratamiento_sustituido` para recuperar el tratamiento anterior y el que lo reemplaza.
+
+**Resultado esperado:** se identifica que el tratamiento 7002 sustituye al tratamiento 7001, conservando ambos registros y sus respectivos estados.
+
+**Utilidad:** permite consultar la trazabilidad de las indicaciones terapéuticas sin perder el historial de los tratamientos sustituidos.
+
+### Q04. Observaciones clínicas vigentes
+
+**Pregunta de negocio:** ¿Cuáles son las versiones vigentes de las observaciones registradas en cada consulta?
+
+**Reglas relacionadas:** RN-19 y S-13.
+
+Se consulta la tabla `observacion_clinica`, utilizando el atributo `es_vigente` para filtrar las versiones identificadas como actuales.
+
+**Resultado esperado:** cuatro observaciones vigentes. La observación 1 de la consulta 5001 se muestra en su segunda versión, conservándose la primera como información histórica.
+
+**Utilidad:** facilita identificar las anotaciones clínicas actuales sin eliminar las versiones anteriores.
+
+### Justificación de las consultas
+
+Las cuatro consultas fueron seleccionadas porque responden a necesidades reales del subproceso clínico y permiten demostrar distintas técnicas de SQL.
+
+Se incluyen consultas que combinan múltiples tablas, funciones de agregación, agrupamiento de resultados, una relación recursiva y filtrado de registros según su vigencia.
+
+En conjunto, permiten comprobar el uso de las relaciones y atributos definidos en el modelo lógico del Proyecto 1, complementando los escenarios de prueba establecidos en B1.
+
+**Estado:** se documentan resultados esperados a partir de los datos preparados. Los resultados observados y las evidencias deberán incorporarse después de ejecutar los scripts en PostgreSQL.
+
+
+## B3. Pruebas de integridad (7 puntos)
+
+### Descripción
+
+Para verificar la integridad de los datos del subsistema de Atención Médica Efectiva, Diagnóstico Clínico y Prescripción Terapéutica de la Clínica Los Robles, se elaboró el archivo `05_pruebas.sql`.
+
+El archivo contiene ocho pruebas de integridad diseñadas a partir de las restricciones establecidas en `01_esquema.sql` y las reglas de negocio del Proyecto 1.
+
+Se incluyen tres pruebas válidas y cinco pruebas inválidas, con el propósito de comprobar tanto la aceptación de operaciones correctas como el rechazo de registros que incumplen las restricciones definidas.
+
+### Pruebas realizadas y resultados esperados
+
+| ID | Precondición | Sentencia de prueba | Resultado esperado |
+|---|---|---|---|
+| P01 | El identificador 5099 está disponible. | `INSERT` en CONSULTA con `id_cita = NULL`. | Inserción aceptada. |
+| P02 | Existe la consulta 5099, insertada en P01. | `INSERT` en OBSERVACION_CLINICA con versión 1. | Inserción aceptada. |
+| P03 | Existe la consulta 5099 y el ID 7099 está disponible. | `INSERT` en TRATAMIENTO con fechas y sesiones válidas. | Inserción aceptada. |
+| P04 | Existe el diagnóstico J00. | `INSERT` en DIAGNOSTICO con código duplicado. | Rechazo por clave primaria. |
+| P05 | No existe la consulta 999999. | `INSERT` en OBSERVACION_CLINICA con referencia inexistente. | Rechazo por clave foránea. |
+| P06 | Existe la consulta 5099. | `INSERT` en OBSERVACION_CLINICA con `num_version = 0`. | Rechazo por CHECK. |
+| P07 | Existe la consulta 5099. | `INSERT` en TRATAMIENTO con estado `Activo`. | Rechazo por CHECK. |
+| P08 | El identificador 5098 está disponible. | `INSERT` en CONSULTA con `id_medico = NULL`. | Rechazo por NOT NULL. |
+
+Las sentencias completas están documentadas e identificadas dentro de `05_pruebas.sql`.
+
+### Mecanismo de ejecución
+
+Para evitar que los errores esperados interrumpan el conjunto de pruebas, se utilizan bloques PL/pgSQL con manejo de excepciones.
+
+Cada operación se evalúa según el resultado esperado y se registra en una tabla temporal de resultados, indicando si la restricción correspondiente se cumplió.
+
+El conjunto se ejecuta dentro de una transacción que finaliza con `ROLLBACK`, evitando modificar permanentemente los registros cargados mediante `02_datos.sql`.
+
+### Restricciones verificadas
+
+Las pruebas permiten evaluar la unicidad de identificadores, la integridad referencial, la obligatoriedad de atributos, los rangos permitidos y los dominios cerrados.
+
+Se comprueban específicamente las restricciones `pk_diagnostico`, `fk_observacion_consulta`, `ck_observacion_version_positiva`, `ck_tratamiento_estado` y la obligatoriedad de `consulta.id_medico`.
+
+Estas restricciones están relacionadas principalmente con las reglas RN-16, RN-17, RN-19, RN-20, RN-21, RN-25 y RN-26.
+
+### Resultados observados
+
+**Pendiente de completar después de ejecutar `05_pruebas.sql` en PostgreSQL.**
+
+El resultado esperado es que las ocho pruebas cumplan sus condiciones: tres inserciones aceptadas y cinco operaciones rechazadas por las restricciones correspondientes.
+
+Los resultados efectivamente observados, las conclusiones de cada prueba y las evidencias de ejecución deberán incorporarse después de realizar la ejecución.
+
+### Conclusión
+
+El conjunto de pruebas propuesto permite verificar que el esquema físico acepta datos coherentes y rechaza operaciones que incumplen las restricciones implementadas.
+
+Además, el mecanismo de ejecución permite evaluar las pruebas individualmente sin detener el conjunto ante errores esperados y sin modificar permanentemente los datos representativos del apartado B1.
+
+La ejecución y documentación de los resultados observados permitirá determinar el grado de cumplimiento de las reglas de integridad implementadas en PostgreSQL.
